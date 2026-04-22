@@ -2,6 +2,7 @@
 name = "nyt_gui"
 version = "0.1.0"
 edition = "2024"
+repository = "https://github.com/obobed/resolution-w2"
 
 [dependencies]
 dotenvy = "0.15.7"

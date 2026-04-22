@@ -77,20 +77,26 @@ impl eframe::App for NytApp {
                 .auto_shrink([false; 2])
                 .show(ui, |ui| {
                     for section in sections.iter() {
-                        ui.label(
-                            egui::RichText::new(section).size(32.0)
-                        );
                         ui.add_space(20.0);
-                        for article in self.pops.results.iter() {
-                            if article.section == section.as_str() {
-                                ui.hyperlink_to(
-                                    egui::RichText::new(&article.title)
-                                        .size(16.0),
-                                    &article.url,
-                                );
-                                ui.add_space(5.0);
+                        let id = ui.make_persistent_id(section);
+                        let state = egui::collapsing_header::CollapsingState::load_with_default_open(ui.ctx(), id, true);
+
+                        state.show_header(ui, |ui| {
+                            ui.label(egui::RichText::new(section).size(32.0));
+                        })
+                        .body(|ui| {
+                            ui.add_space(5.0);
+                            for article in self.pops.results.iter() {
+                                if article.section == section.as_str() {
+                                    ui.hyperlink_to(
+                                        egui::RichText::new(&article.title)
+                                            .size(16.0),
+                                        &article.url,
+                                    );
+                                    ui.add_space(5.0);
+                                }
                             }
-                        }
+                        });
                         ui.add_space(10.0);
                     }
                 });

@@ -1,4 +1,4 @@
-use eframe::{EframePumpStatus, egui};
+use eframe::egui;
 use serde::Deserialize;
 use std::env;
 use std::error::Error;
@@ -9,7 +9,6 @@ struct NytApp {
 
 #[derive(Default, Deserialize)]
 struct MostPopular {
-    status: String,
     results: Vec<Article>
 }
 
@@ -56,36 +55,46 @@ fn new_populars() -> Result<MostPopular, Box<dyn Error>>{
 impl eframe::App for NytApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading("NYT Popular Articles");
+            ui.heading(
+                egui::RichText::new("NYT Popular Articles").size(64.0)
+            );
 
-            ui.add_space(10.0);
+            ui.add_space(20.0);
 
             let total = self.pops.results.len();
             ui.label(format!("Found {total} articles."));
 
-            ui.add_space(5.0);
+            ui.add_space(30.0);
 
             let mut sections = Vec::new();
-            for (i, art) in self.pops.results.iter().enumerate() {
+            for art in self.pops.results.iter() {
                 if !sections.contains(&art.section){
                     sections.push(art.section.clone())
                 }
             }
 
-            for section in sections.iter() {
-                ui.label(
-                    egui::RichText::new(&section).size(64.0)
-                );
-                for (i, article) in self.pops.results.iter().enumerate() {
-                    if article.section == section {
-                        ui.hyperlink_to(
-                            egui::RichText::new(&article.title)
-                                .size(32.0),
-                            &article.url,
+            egui::ScrollArea::vertical()
+                .auto_shrink([false; 2])
+                .show(ui, |ui| {
+                    for section in sections.iter() {
+                        ui.label(
+                            egui::RichText::new(section).size(32.0)
                         );
+                        ui.add_space(20.0);
+                        for article in self.pops.results.iter() {
+                            if article.section == section.as_str() {
+                                ui.hyperlink_to(
+                                    egui::RichText::new(&article.title)
+                                        .size(16.0),
+                                    &article.url,
+                                );
+                                ui.add_space(5.0);
+                            }
+                        }
+                        ui.add_space(10.0);
                     }
-                }
-            }
+                });
+
         });
     }
 }

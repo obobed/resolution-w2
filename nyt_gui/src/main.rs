@@ -55,9 +55,23 @@ fn new_populars() -> Result<MostPopular, Box<dyn Error>>{
 impl eframe::App for NytApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.heading(
+            ui.horizontal(|ui| {
+                ui.heading(
                 egui::RichText::new("NYT Popular Articles").size(64.0)
-            );
+                );
+                ui.add_space(50.0);
+                if ui.button("Refresh").clicked() {
+                    match new_populars() {
+                        Ok(pops) => {
+                            self.pops = pops;
+                        }
+                        Err(err) => {
+                            eprintln!("Failed to fetch popular articles: {err}");
+                        }
+                    }
+                }
+            });
+
 
             ui.add_space(20.0);
 
